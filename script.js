@@ -212,36 +212,84 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
   return { putSign };
 };
 
-let game;
+const GameManager = {
+  game: null,
+  setGame(newGame) {
+    this.game = newGame;
+  },
+  getGame() {
+    return this.game;
+  },
+};
 
 const prepareGame = () => {
+  // VARIABLES
+  const homeScreen = document.querySelector(".Home-Screen");
+  const pvpSetupScreen = document.querySelector(".Setup-Screen--PvP");
+  const pvbotSetupScreen = document.querySelector(".Setup-Screen--PvBot");
+  const gameplayScreen = document.querySelector(".Gameplay-Screen");
+  const gameoverScreen = document.querySelector(".Gameover-Screen");
+  const pvpBtn = document.querySelector("#pvp-btn");
+  const pvbotBtn = document.querySelector("#pvbot-btn");
+  const p1NameInput = document.querySelector("#p1-name-input").value;
+  const p2NameInput = document.querySelector("#p2-name-input").value;
+  const startPvPGameBtn = document.querySelector("#start-pvp-game-btn");
+  const startPvBotGameBtn = document.querySelector("#start-pvbot-game-btn");
+
   let selectedDifficulty = "medium";
-  let gameMode = "PvBot";
 
-  document.getElementById("easy-btn").addEventListener("click", () => {
-    selectedDifficulty = "easy";
+  // P.v.P || P. v. Bot Selection
+  pvpBtn.addEventListener("click", () => {
+    homeScreen.classList.toggle("hidden");
+    pvpSetupScreen.classList.toggle("hidden");
   });
 
-  document.getElementById("medium-btn").addEventListener("click", () => {
-    selectedDifficulty = "medium";
+  pvbotBtn.addEventListener("click", () => {
+    homeScreen.classList.toggle("hidden");
+    pvbotSetupScreen.classList.toggle("hidden");
   });
 
-  document.getElementById("hard-btn").addEventListener("click", () => {
-    selectedDifficulty = "hard";
+  // Player v. Player Setup Screen
+  startPvPGameBtn.addEventListener("click", () => {
+    const player1Name = p1NameInput || "Player 1";
+    const player2Name = p2NameInput || "Player 2";
+
+    const player1 = Player(player1Name, "x");
+    const player2 = Player(player2Name, "o");
+
+    GameManager.setGame(GameController("PvP", null, player1, player2, null));
+    console.log("Player vs Player game started!");
+
+    pvpSetupScreen.classList.toggle("hidden");
+    gameplayScreen.classList.toggle("hidden");
   });
 
-  document.getElementById("start-game-btn").addEventListener("click", () => {
-    const player1 = Player("Gitty", "x");
-    const player2 = Player("Gat", "o");
+  // Player v. Bot Setup Screen
+  const difficultyButtons = document.querySelectorAll(
+    ".Setup-Screen--PvBot .btn"
+  );
+  difficultyButtons.forEach((button) => {
+    button.addEventListener("click", (e) => {
+      selectedDifficulty = e.target.value;
+      console.log(`Difficulty set: ${selectedDifficulty}`);
+    });
+  });
+
+  startPvBotGameBtn.addEventListener("click", () => {
+    const player = Player("You", "x");
     const bot = Player("Bot", "o");
 
-    game = GameController(gameMode, selectedDifficulty, player1, player2, bot);
-    console.log(
-      `Game started in ${gameMode} mode with ${selectedDifficulty} difficulty.`
+    GameManager.setGame(
+      GameController("PvBot", selectedDifficulty, player, null, bot)
     );
+
+    pvbotSetupScreen.classList.toggle("hidden");
+    gameplayScreen.classList.toggle("hidden");
   });
 };
 
+// EVENT LISTENERS
+// On page load, prepare game
 document.addEventListener("DOMContentLoaded", () => {
   prepareGame();
 });
