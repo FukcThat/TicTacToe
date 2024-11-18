@@ -34,6 +34,7 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
   // Make current player "x" & get the board
   let gameMode = mode;
   let currentPlayer = player1;
+  let currentDifficulty = difficulty;
   let board = Gameboard.getBoard();
 
   // Switch Turn Method
@@ -231,8 +232,6 @@ const prepareGame = () => {
   const gameoverScreen = document.querySelector(".Gameover-Screen");
   const pvpBtn = document.querySelector("#pvp-btn");
   const pvbotBtn = document.querySelector("#pvbot-btn");
-  const p1NameInput = document.querySelector("#p1-name-input").value;
-  const p2NameInput = document.querySelector("#p2-name-input").value;
   const startPvPGameBtn = document.querySelector("#start-pvp-game-btn");
   const startPvBotGameBtn = document.querySelector("#start-pvbot-game-btn");
 
@@ -242,22 +241,26 @@ const prepareGame = () => {
   pvpBtn.addEventListener("click", () => {
     homeScreen.classList.toggle("hidden");
     pvpSetupScreen.classList.toggle("hidden");
+    console.log("Gamemode: Player v. Player");
   });
 
   pvbotBtn.addEventListener("click", () => {
     homeScreen.classList.toggle("hidden");
     pvbotSetupScreen.classList.toggle("hidden");
+    console.log("Gamemode: Player v. Bot");
   });
 
   // Player v. Player Setup Screen
   startPvPGameBtn.addEventListener("click", () => {
-    const player1Name = p1NameInput || "Player 1";
-    const player2Name = p2NameInput || "Player 2";
+    const player1Name =
+      document.querySelector("#p1-name-input").value || "Player 1";
+    const player2Name =
+      document.querySelector("#p2-name-input").value || "Player 2";
 
     const player1 = Player(player1Name, "x");
     const player2 = Player(player2Name, "o");
 
-    GameManager.setGame(GameController("PvP", null, player1, player2, null));
+    window.game = GameController("PvP", null, player1, player2, null);
     console.log("Player vs Player game started!");
 
     pvpSetupScreen.classList.toggle("hidden");
@@ -266,21 +269,28 @@ const prepareGame = () => {
 
   // Player v. Bot Setup Screen
   const difficultyButtons = document.querySelectorAll(
-    ".Setup-Screen--PvBot .btn"
+    ".Setup-Screen--PvBot button[value]"
   );
   difficultyButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       selectedDifficulty = e.target.value;
-      console.log(`Difficulty set: ${selectedDifficulty}`);
     });
   });
 
   startPvBotGameBtn.addEventListener("click", () => {
+    console.log(
+      `Player v. Bot game started. Difficulty: ${selectedDifficulty}`
+    );
+
     const player = Player("You", "x");
     const bot = Player("Bot", "o");
 
-    GameManager.setGame(
-      GameController("PvBot", selectedDifficulty, player, null, bot)
+    window.game = GameController(
+      "PvBot",
+      selectedDifficulty,
+      player,
+      null,
+      bot
     );
 
     pvbotSetupScreen.classList.toggle("hidden");
