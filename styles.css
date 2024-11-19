@@ -5,3 +5,34 @@ body {
 .hidden {
     display: none;
 }
+
+.gameboard {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 5px;
+    width: 300px;
+    height: 300px;
+    margin: auto;
+  }
+  
+  .cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #333;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #564f4f;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cell:hover {
+    background-color: #ddd;
+  }
+  
+  .cell.taken {
+    cursor: not-allowed;
+    background-color: #9e5454;
+  }

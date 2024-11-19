@@ -34,7 +34,6 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
   // Make current player "x" & get the board
   let gameMode = mode;
   let currentPlayer = player1;
-  let currentDifficulty = difficulty;
   let board = Gameboard.getBoard();
 
   // Switch Turn Method
@@ -44,6 +43,24 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
     } else if (gameMode === "PvBot") {
       currentPlayer = currentPlayer === player1 ? bot : player1;
     }
+    console.log(`Turn switched. Current player: ${currentPlayer.playerName}`);
+  };
+
+  // Update cell - changes how cell looks once sign is placed
+  const updateCell = (spot, sign) => {
+    console.log(`Updating cell ${spot} with sign ${sign}`);
+    const cell = document.querySelector(`.cell[data-index="${spot}"]`);
+    if (cell) {
+      if (!cell.classList.contains("taken")) {
+        cell.textContent = sign;
+        cell.classList.add("taken");
+        console.log(`Cell ${spot} updated with sign ${sign}`);
+      } else {
+        console.warn(`Cell ${spot} is already taken.`);
+      }
+    } else {
+      console.error(`Cell ${spot} not found in the DOM.`);
+    }
   };
 
   // Put Sign Method - checks if spot is empty, checks if that makes someone the winner, otherwise logs "Spot taken"-Error
@@ -51,7 +68,10 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
     // If the spot is empty, put the player's sign there & display the updated board
     if (board[spot] === "") {
       board[spot] = currentPlayer.playerSign;
+      updateCell(spot, currentPlayer.playerSign);
       Gameboard.displayBoard();
+
+      console.log(`Sign placed: ${currentPlayer.playerSign} at spot ${spot}`);
 
       // If there's a winner, display that, clear the board & display it again
       if (checkWinner()) {
@@ -64,10 +84,14 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
         Gameboard.resetBoard();
         Gameboard.displayBoard();
       } else {
-        // If not, switch turn and display who's turn it is
+        // If nobody won, switch turn and display who's turn it is
         switchTurn();
+        ("Switched turn: Now Bot's move");
         if (gameMode === "PvBot" && currentPlayer === bot) {
-          botMove();
+          const botMoveIndex = botMove();
+          console.log("Bot Move Made");
+          updateCell(botMoveIndex, bot.playerSign);
+          console.log("Bot cell updated");
         } else {
           console.log(`It's ${currentPlayer.playerName}'s Turn`);
         }
@@ -122,6 +146,7 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
   const makeBestMove = () => {
     const bestMove = minimax(board, bot.playerSign).index;
     putSign(bestMove);
+    return bestMove;
   };
 
   // BOT - Make Random Move
@@ -131,6 +156,7 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
     const randomMove =
       emptySpots[Math.floor(Math.random() * emptySpots.length)];
     putSign(randomMove);
+    return randomMove;
   };
 
   // Minimax - Logic for Bot knowing hat to do
@@ -196,21 +222,25 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
 
   // Bot Move Method
   const botMove = () => {
+    let botMoveIndex;
     // Hard Bot
     if (difficulty === "hard") {
-      makeBestMove();
+      botMoveIndex = makeBestMove();
     } else if (difficulty === "medium") {
       if (Math.random() < 0.3) {
-        makeBestMove();
+        botMoveIndex = makeBestMove();
       } else {
-        makeRandomMove();
+        botMoveIndex = makeRandomMove();
       }
     } else if (difficulty === "easy") {
-      makeRandomMove();
+      botMoveIndex = makeRandomMove();
     }
+
+    console.log(`Bot moved to index: ${botMoveIndex}`);
+    return botMoveIndex;
   };
 
-  return { putSign };
+  return { putSign, switchTurn, currentPlayer, board, botMove };
 };
 
 const GameManager = {
@@ -230,6 +260,7 @@ const prepareGame = () => {
   const pvbotSetupScreen = document.querySelector(".Setup-Screen--PvBot");
   const gameplayScreen = document.querySelector(".Gameplay-Screen");
   const gameoverScreen = document.querySelector(".Gameover-Screen");
+  const gameboardDiv = document.querySelector(".gameboard");
   const pvpBtn = document.querySelector("#pvp-btn");
   const pvbotBtn = document.querySelector("#pvbot-btn");
   const startPvPGameBtn = document.querySelector("#start-pvp-game-btn");
@@ -260,11 +291,12 @@ const prepareGame = () => {
     const player1 = Player(player1Name, "x");
     const player2 = Player(player2Name, "o");
 
-    window.game = GameController("PvP", null, player1, player2, null);
+    GameManager.setGame(GameController("PvP", null, player1, player2, null));
     console.log("Player vs Player game started!");
 
     pvpSetupScreen.classList.toggle("hidden");
     gameplayScreen.classList.toggle("hidden");
+    setUpGameBoard();
   });
 
   // Player v. Bot Setup Screen
@@ -274,6 +306,7 @@ const prepareGame = () => {
   difficultyButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
       selectedDifficulty = e.target.value;
+      console.log(`Difficulty set to: ${selectedDifficulty}`);
     });
   });
 
@@ -285,17 +318,35 @@ const prepareGame = () => {
     const player = Player("You", "x");
     const bot = Player("Bot", "o");
 
-    window.game = GameController(
-      "PvBot",
-      selectedDifficulty,
-      player,
-      null,
-      bot
+    GameManager.setGame(
+      GameController("PvBot", selectedDifficulty, player, null, bot)
     );
 
     pvbotSetupScreen.classList.toggle("hidden");
     gameplayScreen.classList.toggle("hidden");
+    setUpGameBoard();
   });
+
+  const setUpGameBoard = () => {
+    const game = GameManager.getGame();
+    const cells = document.querySelectorAll(".cell");
+
+    console.log("Game Instance:", game);
+    console.log("Board:", game.board);
+
+    cells.forEach((cell) => {
+      cell.textContent = "";
+      cell.classList.remove("taken");
+
+      cell.addEventListener("click", () => {
+        const index = parseInt(cell.dataset.index, 10);
+        console.log(`Cell clicked: ${index}`);
+        if (cell.classList.contains("taken")) return;
+
+        game.putSign(index);
+      });
+    });
+  };
 };
 
 // EVENT LISTENERS
