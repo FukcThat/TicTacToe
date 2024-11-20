@@ -47,19 +47,22 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
   };
 
   // Update cell - changes how cell looks once sign is placed
-  const updateCell = (spot, sign) => {
+  const updateCell = (spot, sign, currentPlayer) => {
     console.log(`Updating cell ${spot} with sign ${sign}`);
     const cell = document.querySelector(`.cell[data-index="${spot}"]`);
-    if (cell) {
-      if (!cell.classList.contains("taken")) {
-        cell.textContent = sign;
-        cell.classList.add("taken");
-        console.log(`Cell ${spot} updated with sign ${sign}`);
+
+    if (cell && !cell.classList.contains("taken")) {
+      cell.textContent = sign;
+      cell.classList.add("taken");
+
+      // Style cells for player & bot || second player differently
+      if (currentPlayer.playerName === "Bot" || currentPlayer === "o") {
+        cell.style.borderColor = "green";
       } else {
-        console.warn(`Cell ${spot} is already taken.`);
+        cell.style.borderColor = "yellow";
       }
     } else {
-      console.error(`Cell ${spot} not found in the DOM.`);
+      console.error(`Cell ${spot} not found in the DOM or already taken.`);
     }
   };
 
@@ -68,7 +71,7 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
     // If the spot is empty, put the player's sign there & display the updated board
     if (board[spot] === "") {
       board[spot] = currentPlayer.playerSign;
-      updateCell(spot, currentPlayer.playerSign);
+      updateCell(spot, currentPlayer.playerSign, currentPlayer);
       Gameboard.displayBoard();
 
       console.log(`Sign placed: ${currentPlayer.playerSign} at spot ${spot}`);
@@ -89,7 +92,7 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
         if (gameMode === "PvBot" && currentPlayer === bot) {
           setTimeout(() => {
             const botMoveIndex = botMove();
-            updateCell(botMoveIndex, bot.playerSign);
+            updateCell(botMoveIndex, bot.playerSign, currentPlayer);
           }, 800);
         } else {
           console.log(`It's ${currentPlayer.playerName}'s Turn`);
@@ -271,12 +274,15 @@ const prepareGame = () => {
   // P.v.P || P. v. Bot Selection
   pvpBtn.addEventListener("click", () => {
     homeScreen.classList.toggle("hidden");
+    homeScreen.classList.toggle("flex");
     pvpSetupScreen.classList.toggle("hidden");
     console.log("Gamemode: Player v. Player");
   });
 
   pvbotBtn.addEventListener("click", () => {
     homeScreen.classList.toggle("hidden");
+    homeScreen.classList.toggle("flex");
+
     pvbotSetupScreen.classList.toggle("hidden");
     console.log("Gamemode: Player v. Bot");
   });
