@@ -86,12 +86,11 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
       } else {
         // If nobody won, switch turn and display who's turn it is
         switchTurn();
-        ("Switched turn: Now Bot's move");
         if (gameMode === "PvBot" && currentPlayer === bot) {
-          const botMoveIndex = botMove();
-          console.log("Bot Move Made");
-          updateCell(botMoveIndex, bot.playerSign);
-          console.log("Bot cell updated");
+          setTimeout(() => {
+            const botMoveIndex = botMove();
+            updateCell(botMoveIndex, bot.playerSign);
+          }, 800);
         } else {
           console.log(`It's ${currentPlayer.playerName}'s Turn`);
         }
@@ -253,6 +252,7 @@ const GameManager = {
   },
 };
 
+// Prepare Game
 const prepareGame = () => {
   // VARIABLES
   const homeScreen = document.querySelector(".Home-Screen");
@@ -349,7 +349,6 @@ const prepareGame = () => {
   };
 };
 
-// EVENT LISTENERS
 // On page load, prepare game
 document.addEventListener("DOMContentLoaded", () => {
   prepareGame();
