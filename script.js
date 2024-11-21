@@ -282,7 +282,6 @@ const prepareGame = () => {
   pvbotBtn.addEventListener("click", () => {
     homeScreen.classList.toggle("hidden");
     homeScreen.classList.toggle("flex");
-
     pvbotSetupScreen.classList.toggle("hidden");
     console.log("Gamemode: Player v. Bot");
   });
@@ -301,13 +300,15 @@ const prepareGame = () => {
     console.log("Player vs Player game started!");
 
     pvpSetupScreen.classList.toggle("hidden");
+    pvpSetupScreen.classList.toggle("flex");
     gameplayScreen.classList.toggle("hidden");
+    gameplayScreen.classList.toggle("flex");
     setUpGameBoard();
   });
 
   // Player v. Bot Setup Screen
   const difficultyButtons = document.querySelectorAll(
-    ".Setup-Screen--PvBot button[value]"
+    ".Setup-Screen--PvBot .bot-difficulty-btns button[value]"
   );
   difficultyButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
@@ -329,7 +330,9 @@ const prepareGame = () => {
     );
 
     pvbotSetupScreen.classList.toggle("hidden");
+    pvbotSetupScreen.classList.toggle("flex");
     gameplayScreen.classList.toggle("hidden");
+    gameplayScreen.classList.toggle("flex");
     setUpGameBoard();
   });
 
