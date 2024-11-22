@@ -273,16 +273,18 @@ const prepareGame = () => {
 
   // P.v.P || P. v. Bot Selection
   pvpBtn.addEventListener("click", () => {
-    homeScreen.classList.toggle("hidden");
-    homeScreen.classList.toggle("flex");
-    pvpSetupScreen.classList.toggle("hidden");
+    homeScreen.classList.add("hidden");
+    homeScreen.classList.remove("flex");
+    pvpSetupScreen.classList.remove("hidden");
+    pvpSetupScreen.classList.add("flex");
     console.log("Gamemode: Player v. Player");
   });
 
   pvbotBtn.addEventListener("click", () => {
-    homeScreen.classList.toggle("hidden");
-    homeScreen.classList.toggle("flex");
-    pvbotSetupScreen.classList.toggle("hidden");
+    homeScreen.classList.add("hidden");
+    homeScreen.classList.remove("flex");
+    pvbotSetupScreen.classList.remove("hidden");
+    pvbotSetupScreen.classList.add("flex");
     console.log("Gamemode: Player v. Bot");
   });
 
@@ -299,20 +301,23 @@ const prepareGame = () => {
     GameManager.setGame(GameController("PvP", null, player1, player2, null));
     console.log("Player vs Player game started!");
 
-    pvpSetupScreen.classList.toggle("hidden");
-    pvpSetupScreen.classList.toggle("flex");
-    gameplayScreen.classList.toggle("hidden");
-    gameplayScreen.classList.toggle("flex");
+    pvpSetupScreen.classList.add("hidden");
+    pvpSetupScreen.classList.remove("flex");
+    gameplayScreen.classList.remove("hidden");
+    gameplayScreen.classList.add("flex");
     setUpGameBoard();
   });
 
   // Player v. Bot Setup Screen
   const difficultyButtons = document.querySelectorAll(
-    ".Setup-Screen--PvBot .bot-difficulty-btns button[value]"
+    ".bot-difficulty-btns button[value]"
   );
+
+  console.log("Difficulty buttons found:", difficultyButtons);
+
   difficultyButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
-      selectedDifficulty = e.target.value;
+      selectedDifficulty = e.currentTarget.value;
       console.log(`Difficulty set to: ${selectedDifficulty}`);
     });
   });
