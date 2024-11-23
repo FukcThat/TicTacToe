@@ -30,19 +30,45 @@ const Player = (playerName, playerSign) => {
 };
 
 // GAME CONTROLLER FACTORY
-const GameController = (mode, difficulty, player1, player2, bot) => {
+const GameController = (
+  mode,
+  difficulty,
+  player1,
+  player2,
+  bot,
+  showGameOverScreen
+) => {
   // Make current player "x" & get the board
   let gameMode = mode;
   let currentPlayer = player1;
   let board = Gameboard.getBoard();
 
+  // Turn Text
+  const getTurnText = (currentPlayer, gameMode) => {
+    if (gameMode === "PvBot" && currentPlayer.playerName === "You") {
+      console.log("Generated Turn Text:", getTurnText(currentPlayer, gameMode));
+      return "Your turn";
+    }
+    console.log("Generated Turn Text:", getTurnText(currentPlayer, gameMode));
+    return `It's ${currentPlayer.playerName}'s Turn`;
+  };
+
   // Switch Turn Method
   const switchTurn = () => {
-    if (gameMode === "PvP") {
-      currentPlayer = currentPlayer === player1 ? player2 : player1;
-    } else if (gameMode === "PvBot") {
-      currentPlayer = currentPlayer === player1 ? bot : player1;
-    }
+    currentPlayer =
+      currentPlayer === player1
+        ? gameMode === "PvBot"
+          ? bot
+          : player2
+        : player1;
+
+    const turnIndicator = document.querySelector("#current-turn");
+    const turnText = getTurnText(currentPlayer, gameMode);
+    turnIndicator.textContent = turnText;
+
+    console.log("Switching Turn to:", currentPlayer.playerName);
+    console.log(`Turn Text: ${turnText}`);
+
     console.log(`Turn switched. Current player: ${currentPlayer.playerName}`);
   };
 
@@ -79,13 +105,11 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
       // If there's a winner, display that, clear the board & display it again
       if (checkWinner()) {
         console.log(`${currentPlayer.playerName} wins!`);
-        Gameboard.resetBoard();
-        Gameboard.displayBoard();
+        showGameOverScreen(`${currentPlayer.playerName} wins!`);
       } else if (isBoardFull()) {
         // If the board is full but no one won, its a tie
         console.log("It's a draw!");
-        Gameboard.resetBoard();
-        Gameboard.displayBoard();
+        showGameOverScreen("It's a draw!");
       } else {
         // If nobody won, switch turn and display who's turn it is
         switchTurn();
@@ -242,7 +266,7 @@ const GameController = (mode, difficulty, player1, player2, bot) => {
     return botMoveIndex;
   };
 
-  return { putSign, switchTurn, currentPlayer, board, botMove };
+  return { putSign, switchTurn, currentPlayer, board, botMove, getTurnText };
 };
 
 const GameManager = {
@@ -261,8 +285,12 @@ const prepareGame = () => {
   const homeScreen = document.querySelector(".Home-Screen");
   const pvpSetupScreen = document.querySelector(".Setup-Screen--PvP");
   const pvbotSetupScreen = document.querySelector(".Setup-Screen--PvBot");
+  const turnIndicator = document.querySelector("#current-turn");
   const gameplayScreen = document.querySelector(".Gameplay-Screen");
   const gameoverScreen = document.querySelector(".Gameover-Screen");
+  const winnerText = document.querySelector(".winner-text");
+  const rematchBtn = document.querySelector("#rematch-btn");
+  const homeBtn = document.querySelector("#home-btn");
   const gameboardDiv = document.querySelector(".gameboard");
   const pvpBtn = document.querySelector("#pvp-btn");
   const pvbotBtn = document.querySelector("#pvbot-btn");
@@ -271,20 +299,24 @@ const prepareGame = () => {
 
   let selectedDifficulty = "medium";
 
+  // Screen Transition Helper
+  const showScreen = (screenToShow) => {
+    document.querySelectorAll("section").forEach((section) => {
+      section.classList.add("hidden");
+      section.classList.remove("flex");
+    });
+    screenToShow.classList.remove("hidden");
+    screenToShow.classList.add("flex");
+  };
+
   // P.v.P || P. v. Bot Selection
   pvpBtn.addEventListener("click", () => {
-    homeScreen.classList.add("hidden");
-    homeScreen.classList.remove("flex");
-    pvpSetupScreen.classList.remove("hidden");
-    pvpSetupScreen.classList.add("flex");
+    showScreen(pvpSetupScreen);
     console.log("Gamemode: Player v. Player");
   });
 
   pvbotBtn.addEventListener("click", () => {
-    homeScreen.classList.add("hidden");
-    homeScreen.classList.remove("flex");
-    pvbotSetupScreen.classList.remove("hidden");
-    pvbotSetupScreen.classList.add("flex");
+    showScreen(pvbotSetupScreen);
     console.log("Gamemode: Player v. Bot");
   });
 
@@ -298,13 +330,12 @@ const prepareGame = () => {
     const player1 = Player(player1Name, "x");
     const player2 = Player(player2Name, "o");
 
-    GameManager.setGame(GameController("PvP", null, player1, player2, null));
+    GameManager.setGame(
+      GameController("PvP", null, player1, player2, null, showGameOverScreen)
+    );
     console.log("Player vs Player game started!");
 
-    pvpSetupScreen.classList.add("hidden");
-    pvpSetupScreen.classList.remove("flex");
-    gameplayScreen.classList.remove("hidden");
-    gameplayScreen.classList.add("flex");
+    showScreen(gameplayScreen);
     setUpGameBoard();
   });
 
@@ -312,35 +343,68 @@ const prepareGame = () => {
   const difficultyButtons = document.querySelectorAll(
     ".bot-difficulty-btns button[value]"
   );
-
   console.log("Difficulty buttons found:", difficultyButtons);
-
   difficultyButtons.forEach((button) => {
     button.addEventListener("click", (e) => {
+      difficultyButtons.forEach((btn) => btn.classList.remove("active"));
+      e.currentTarget.classList.add("active");
       selectedDifficulty = e.currentTarget.value;
       console.log(`Difficulty set to: ${selectedDifficulty}`);
     });
   });
 
+  // Start Bot Game
   startPvBotGameBtn.addEventListener("click", () => {
     console.log(
       `Player v. Bot game started. Difficulty: ${selectedDifficulty}`
     );
 
+    const botName =
+      selectedDifficulty === "easy"
+        ? "Nano"
+        : selectedDifficulty === "medium"
+        ? "Micro"
+        : "Macro";
+
     const player = Player("You", "x");
-    const bot = Player("Bot", "o");
+    const bot = Player(botName, "o");
 
     GameManager.setGame(
-      GameController("PvBot", selectedDifficulty, player, null, bot)
+      GameController(
+        "PvBot",
+        selectedDifficulty,
+        player,
+        null,
+        bot,
+        showGameOverScreen
+      )
     );
 
-    pvbotSetupScreen.classList.toggle("hidden");
-    pvbotSetupScreen.classList.toggle("flex");
-    gameplayScreen.classList.toggle("hidden");
-    gameplayScreen.classList.toggle("flex");
+    showScreen(gameplayScreen);
     setUpGameBoard();
   });
 
+  // Game-Over Screen
+  const showGameOverScreen = (winner) => {
+    winnerText.textContent = winner;
+    showScreen(gameoverScreen);
+  };
+
+  rematchBtn.addEventListener("click", () => {
+    const game = GameManager.getGame();
+    if (game) {
+      Gameboard.resetBoard();
+      setUpGameBoard();
+      showScreen(gameplayScreen);
+    }
+  });
+
+  homeBtn.addEventListener("click", () => {
+    Gameboard.resetBoard();
+    showScreen(homeScreen);
+  });
+
+  // Set Up Game Board
   const setUpGameBoard = () => {
     const game = GameManager.getGame();
     const cells = document.querySelectorAll(".cell");
@@ -348,9 +412,14 @@ const prepareGame = () => {
     console.log("Game Instance:", game);
     console.log("Board:", game.board);
 
+    const initialTurnText = game.getTurnText(game.currentPlayer, game.gameMode);
+    turnIndicator.textContent = initialTurnText;
+    console.log("Initial Turn:", initialTurnText);
+
     cells.forEach((cell) => {
       cell.textContent = "";
       cell.classList.remove("taken");
+      cell.style.borderColor = "";
 
       cell.addEventListener("click", () => {
         const index = parseInt(cell.dataset.index, 10);

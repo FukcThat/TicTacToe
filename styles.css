@@ -85,17 +85,17 @@ h2 {
     flex-direction: column;
   }
 
-  .bot-difficulty-btns #easy-btn:hover {
-    background-color: rgb(148, 177, 148);
+  .bot-difficulty-btns #easy-btn:hover, .bot-difficulty-btns #easy-btn.active {
+    background-color: rgb(148, 169, 177);
   }
 
-  .bot-difficulty-btns #medium-btn:hover {
-    background-color: rgb(196, 196, 85);
+  .bot-difficulty-btns #medium-btn:hover, .bot-difficulty-btns #medium-btn.active {
+    background-color: rgb(85, 122, 196);
   }
 
 
-  .bot-difficulty-btns #hard-btn:hover {
-    background-color: rgb(194, 109, 109);
+  .bot-difficulty-btns #hard-btn:hover, .bot-difficulty-btns #hard-btn.active {
+    background-color: rgb(119, 109, 194);
   }
 
     /* Player vs Bot Screen */

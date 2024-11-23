@@ -148,6 +148,9 @@
       <button class="btn" id="start-pvbot-game-btn">Start Game</button>
     </section>
     <section class="Gameplay-Screen hidden">
+      <div class="turn-indicator">
+        It's <span id="current-turn">Player 1's</span> turn
+      </div>
       <div class="gameboard">
         <div class="cell" data-index="0"></div>
         <div class="cell" data-index="1"></div>
@@ -160,6 +163,12 @@
         <div class="cell" data-index="8"></div>
       </div>
     </section>
-    <section class="Gameover-Screen hidden"></section>
+    <section class="Gameover-Screen hidden">
+      <h2 class="winner-text"></h2>
+      <div class="game-over-buttons">
+        <button class="btn" id="rematch-btn">Rematch</button>
+        <button class="btn" id="home-btn">Return to Home</button>
+      </div>
+    </section>
   </body>
 </html>
