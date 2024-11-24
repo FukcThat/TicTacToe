@@ -79,20 +79,22 @@
       </div>
     </section>
     <section class="Setup-Screen--PvP hidden">
-      <label for="p1-name-input">Player 1</label>
-      <input
-        type="text"
-        class="player-name--input"
-        id="p1-name-input"
-        placeholder="Your Name"
-      />
-      <label for="p2-name-input">Player 2</label>
-      <input
-        type="text"
-        class="player-name--input"
-        id="p2-name-input"
-        placeholder="Someone Else's Name"
-      />
+      <div class="pvp-inputs">
+        <label for="p1-name-input">Player 1</label>
+        <label for="p2-name-input">Player 2</label>
+        <input
+          type="text"
+          class="player-name--input"
+          id="p1-name-input"
+          placeholder="Your Name"
+        />
+        <input
+          type="text"
+          class="player-name--input"
+          id="p2-name-input"
+          placeholder="Someone Else's Name"
+        />
+      </div>
       <button class="btn" id="start-pvp-game-btn">Start Game</button>
     </section>
     <section class="Setup-Screen--PvBot hidden">
@@ -148,9 +150,7 @@
       <button class="btn" id="start-pvbot-game-btn">Start Game</button>
     </section>
     <section class="Gameplay-Screen hidden">
-      <div class="turn-indicator">
-        <span id="current-turn"></span>
-      </div>
+      <h2 class="turn-indicator"></h2>
       <div class="gameboard">
         <div class="cell" data-index="0"></div>
         <div class="cell" data-index="1"></div>

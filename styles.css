@@ -58,7 +58,29 @@ h2 {
   }
   /* Home Screen */
 
-  /* Player vs Bot Screen */
+  /* Player vs Plaver Setup Screen */
+.Setup-Screen--PvP {
+  padding-top: 15rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 5rem;
+}
+
+.pvp-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  text-align: center;
+  font-size: 2.75rem;
+}
+
+.pvp-inputs input {
+  font-size: 1.2rem;
+  text-align: center;
+}
+  /* Player vs Plaver Setup Screen */
+
+  /* Player vs Bot Setup Screen */
   .Setup-Screen--PvBot {
     flex-direction: column;
     align-items: center;
@@ -102,6 +124,11 @@ h2 {
 
 
   /* Game-play Screen */
+.Gameplay-Screen {
+  flex-direction: column;
+  align-items: center;
+}
+
 .gameboard {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -133,3 +160,16 @@ h2 {
     cursor: not-allowed;
   }
 /* Game-play Screen */
+
+/* Game-Over Screen */
+.Gameover-Screen {
+  flex-direction: column;
+  align-items: center;
+  margin-top: 15rem;
+}
+
+.game-over-buttons {
+  display: flex;
+  gap: 2rem;
+}
+/* Game-Over Screen */
