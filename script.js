@@ -1,3 +1,19 @@
+// VARIABLES
+const homeScreen = document.querySelector(".Home-Screen");
+const pvpSetupScreen = document.querySelector(".Setup-Screen--PvP");
+const pvbotSetupScreen = document.querySelector(".Setup-Screen--PvBot");
+const turnIndicator = document.querySelector("#current-turn");
+const gameplayScreen = document.querySelector(".Gameplay-Screen");
+const gameoverScreen = document.querySelector(".Gameover-Screen");
+const winnerText = document.querySelector(".winner-text");
+const rematchBtn = document.querySelector("#rematch-btn");
+const homeBtn = document.querySelector("#home-btn");
+const gameboardDiv = document.querySelector(".gameboard");
+const pvpBtn = document.querySelector("#pvp-btn");
+const pvbotBtn = document.querySelector("#pvbot-btn");
+const startPvPGameBtn = document.querySelector("#start-pvp-game-btn");
+const startPvBotGameBtn = document.querySelector("#start-pvbot-game-btn");
+
 // GAMEBOARD FACTORY
 const Gameboard = (() => {
   let board = ["", "", "", "", "", "", "", "", ""];
@@ -43,16 +59,6 @@ const GameController = (
   let currentPlayer = player1;
   let board = Gameboard.getBoard();
 
-  // Turn Text
-  const getTurnText = (currentPlayer, gameMode) => {
-    if (gameMode === "PvBot" && currentPlayer.playerName === "You") {
-      console.log("Generated Turn Text:", getTurnText(currentPlayer, gameMode));
-      return "Your turn";
-    }
-    console.log("Generated Turn Text:", getTurnText(currentPlayer, gameMode));
-    return `It's ${currentPlayer.playerName}'s Turn`;
-  };
-
   // Switch Turn Method
   const switchTurn = () => {
     currentPlayer =
@@ -62,14 +68,21 @@ const GameController = (
           : player2
         : player1;
 
-    const turnIndicator = document.querySelector("#current-turn");
-    const turnText = getTurnText(currentPlayer, gameMode);
-    turnIndicator.textContent = turnText;
+    console.log("Current Player:", currentPlayer.playerName);
 
-    console.log("Switching Turn to:", currentPlayer.playerName);
-    console.log(`Turn Text: ${turnText}`);
-
-    console.log(`Turn switched. Current player: ${currentPlayer.playerName}`);
+    if (gameMode === "PvBot" && currentPlayer === player1) {
+      turnIndicator.textContent = "It's your turn";
+      console.log(
+        "Expected: It's your turn, Expected currect player: Player1, Actual current player:",
+        currentPlayer
+      );
+    } else {
+      turnIndicator.textContent = `It's ${currentPlayer.playerName}'s turn`;
+      console.log(
+        "Expected: It's BotName's / Player2's turn, Expected currect player: Micro, Actual current player:",
+        currentPlayer
+      );
+    }
   };
 
   // Update cell - changes how cell looks once sign is placed
@@ -82,7 +95,15 @@ const GameController = (
       cell.classList.add("taken");
 
       // Style cells for player & bot || second player differently
-      if (currentPlayer.playerName === "Bot" || currentPlayer === "o") {
+      if (gameMode === "PvBot" && currentPlayer.playerName === "Nano") {
+        cell.style.borderColor = "rgb(148, 169, 177)";
+      } else if (gameMode === "PvBot" && currentPlayer.playerName === "Micro") {
+        cell.style.borderColor = "rgb(85, 122, 196)";
+      } else if (gameMode === "PvBot" && currentPlayer.playerName === "Macro") {
+        cell.style.borderColor = "rgb(119, 109, 194)";
+      } else if (gameMode === "PvBot" && currentPlayer === "x") {
+        cell.style.borderColor = "yellow";
+      } else if (gameMode === "PvP" && currentPlayer.playerSign === "x") {
         cell.style.borderColor = "green";
       } else {
         cell.style.borderColor = "yellow";
@@ -118,8 +139,6 @@ const GameController = (
             const botMoveIndex = botMove();
             updateCell(botMoveIndex, bot.playerSign, currentPlayer);
           }, 800);
-        } else {
-          console.log(`It's ${currentPlayer.playerName}'s Turn`);
         }
       }
     } else {
@@ -266,7 +285,7 @@ const GameController = (
     return botMoveIndex;
   };
 
-  return { putSign, switchTurn, currentPlayer, board, botMove, getTurnText };
+  return { putSign, switchTurn, currentPlayer, board, botMove, gameMode };
 };
 
 const GameManager = {
@@ -281,22 +300,6 @@ const GameManager = {
 
 // Prepare Game
 const prepareGame = () => {
-  // VARIABLES
-  const homeScreen = document.querySelector(".Home-Screen");
-  const pvpSetupScreen = document.querySelector(".Setup-Screen--PvP");
-  const pvbotSetupScreen = document.querySelector(".Setup-Screen--PvBot");
-  const turnIndicator = document.querySelector("#current-turn");
-  const gameplayScreen = document.querySelector(".Gameplay-Screen");
-  const gameoverScreen = document.querySelector(".Gameover-Screen");
-  const winnerText = document.querySelector(".winner-text");
-  const rematchBtn = document.querySelector("#rematch-btn");
-  const homeBtn = document.querySelector("#home-btn");
-  const gameboardDiv = document.querySelector(".gameboard");
-  const pvpBtn = document.querySelector("#pvp-btn");
-  const pvbotBtn = document.querySelector("#pvbot-btn");
-  const startPvPGameBtn = document.querySelector("#start-pvp-game-btn");
-  const startPvBotGameBtn = document.querySelector("#start-pvbot-game-btn");
-
   let selectedDifficulty = "medium";
 
   // Screen Transition Helper
@@ -329,6 +332,8 @@ const prepareGame = () => {
 
     const player1 = Player(player1Name, "x");
     const player2 = Player(player2Name, "o");
+
+    GameManager.setGame(null);
 
     GameManager.setGame(
       GameController("PvP", null, player1, player2, null, showGameOverScreen)
@@ -369,6 +374,8 @@ const prepareGame = () => {
     const player = Player("You", "x");
     const bot = Player(botName, "o");
 
+    GameManager.setGame(null);
+
     GameManager.setGame(
       GameController(
         "PvBot",
@@ -408,20 +415,32 @@ const prepareGame = () => {
   const setUpGameBoard = () => {
     const game = GameManager.getGame();
     const cells = document.querySelectorAll(".cell");
+    const { currentPlayer, gameMode } = game;
 
     console.log("Game Instance:", game);
     console.log("Board:", game.board);
+    console.log("GameMode in SetUpGameBoard:", gameMode);
+    console.log("Current Player in SetUpGameBoard:", currentPlayer);
 
-    const initialTurnText = game.getTurnText(game.currentPlayer, game.gameMode);
-    turnIndicator.textContent = initialTurnText;
-    console.log("Initial Turn:", initialTurnText);
+    if (gameMode === "PvBot") {
+      console.log("Expected turn text pvbot @SetUpGame: Its your turn");
+      turnIndicator.textContent = "It's your turn";
+    } else if (gameMode === "PvP") {
+      console.log(
+        "Expected turn text pvbot @SetUpGame: Its Player1Name's turn"
+      );
+      turnIndicator.textContent = `It's ${currentPlayer.playerName}'s turn`;
+    }
 
     cells.forEach((cell) => {
       cell.textContent = "";
       cell.classList.remove("taken");
       cell.style.borderColor = "";
 
-      cell.addEventListener("click", () => {
+      const newCell = cell.cloneNode(true);
+      cell.parentNode.replaceChild(newCell, cell);
+
+      newCell.addEventListener("click", () => {
         const index = parseInt(cell.dataset.index, 10);
         console.log(`Cell clicked: ${index}`);
         if (cell.classList.contains("taken")) return;
