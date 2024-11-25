@@ -102,7 +102,11 @@ const GameController = (
 
       // If there's a winner, display that, clear the board & display it again
       if (checkWinner()) {
-        showGameOverScreen(`${currentPlayer.playerName} wins!`);
+        if (gameMode === "PvBot" && currentPlayer.playerSign === "x") {
+          showGameOverScreen("You win!");
+        } else {
+          showGameOverScreen(`${currentPlayer.playerName} wins!`);
+        }
       } else if (isBoardFull()) {
         // If the board is full but no one won, its a tie
         showGameOverScreen("It's a draw!");
@@ -298,8 +302,10 @@ const prepareGame = () => {
   startPvPGameBtn.addEventListener("click", () => {
     const player1Name =
       document.querySelector("#p1-name-input").value || "Player 1";
+    document.querySelector("#p1-name-input").value = "";
     const player2Name =
       document.querySelector("#p2-name-input").value || "Player 2";
+    document.querySelector("#p2-name-input").value = "";
 
     const player1 = Player(player1Name, "x");
     const player2 = Player(player2Name, "o");
