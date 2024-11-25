@@ -14,6 +14,17 @@ const pvbotBtn = document.querySelector("#pvbot-btn");
 const startPvPGameBtn = document.querySelector("#start-pvp-game-btn");
 const startPvBotGameBtn = document.querySelector("#start-pvbot-game-btn");
 
+// Game Manager
+const GameManager = {
+  game: null,
+  setGame(newGame) {
+    this.game = newGame;
+  },
+  getGame() {
+    return this.game;
+  },
+};
+
 // GAMEBOARD FACTORY
 const Gameboard = (() => {
   let board = ["", "", "", "", "", "", "", "", ""];
@@ -251,7 +262,7 @@ const GameController = (
     if (difficulty === "hard") {
       botMoveIndex = makeBestMove();
     } else if (difficulty === "medium") {
-      if (Math.random() < 0.3) {
+      if (Math.random() < 0.8) {
         botMoveIndex = makeBestMove();
       } else {
         botMoveIndex = makeRandomMove();
@@ -263,16 +274,6 @@ const GameController = (
   };
 
   return { putSign, switchTurn, currentPlayer, board, botMove, gameMode };
-};
-
-const GameManager = {
-  game: null,
-  setGame(newGame) {
-    this.game = newGame;
-  },
-  getGame() {
-    return this.game;
-  },
 };
 
 // Prepare Game
